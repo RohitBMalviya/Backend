@@ -22,6 +22,9 @@
     "prettier": "^3.2.5"
   },
   "dependencies": {
-    "dotenv": "^16.4.4"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.4",
+    "express": "^4.18.2",
+    "moongoose": "^0.0.1"
   }
 }
