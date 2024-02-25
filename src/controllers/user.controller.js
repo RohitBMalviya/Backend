@@ -32,11 +32,13 @@ const registerUser = asyncHandler(async (request, response) => {
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is  required");
     }
+
     const avatar = await uploadFile(avatarLocalPath);
-    // console.log("adf", avatar);
+
     if (!avatar) {
         throw new ApiError(400, "Avatar file is required");
     }
+    // console.log("adf", avatar);
 
     // const coverImageLocalPath = request.files?.coverImage[0]?.path;
     // console.log(request.files);
@@ -44,7 +46,7 @@ const registerUser = asyncHandler(async (request, response) => {
     if (
         request.files &&
         Array.isArray(request.files.coverImage) &&
-        request.files.coverImage.lenght > 0
+        request.files.coverImage.length > 0
     ) {
         coverImageLocalPath = request.files.coverImage[0].path;
     }
