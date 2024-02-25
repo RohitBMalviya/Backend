@@ -28,15 +28,14 @@ const registerUser = asyncHandler(async (request, response) => {
     }
 
     const avatarLocalPath = request.files?.avatar[0]?.path;
-    console.log("heeeeee", avatarLocalPath);
     const coverImageLocalPath = request.files?.coverImage[0]?.path;
     if (!avatarLocalPath) {
-        throw new ApiError(400, "avartarLocalPath Avatar file is  required");
+        throw new ApiError(400, "Avatar file is  required");
     }
 
     const avatar = await uploadFile(avatarLocalPath);
     const coverImage = await uploadFile(coverImageLocalPath);
-    console.log("adf", avatar);
+    // console.log("adf", avatar);
     if (!avatar) {
         throw new ApiError(400, "Avatar file is required");
     }
