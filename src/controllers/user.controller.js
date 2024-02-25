@@ -10,6 +10,7 @@ const registerUser = asyncHandler(async (request, response) => {
     // });
 
     const { fullname, email, password, username } = request.body;
+    // console.log(request.body);
     // console.table([fullname, email, password, username]);
     if (
         [fullname, email, password, username].some(
@@ -28,22 +29,31 @@ const registerUser = asyncHandler(async (request, response) => {
     }
 
     const avatarLocalPath = request.files?.avatar[0]?.path;
-    const coverImageLocalPath = request.files?.coverImage[0]?.path;
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is  required");
     }
-
     const avatar = await uploadFile(avatarLocalPath);
-    const coverImage = await uploadFile(coverImageLocalPath);
     // console.log("adf", avatar);
     if (!avatar) {
         throw new ApiError(400, "Avatar file is required");
     }
 
+    // const coverImageLocalPath = request.files?.coverImage[0]?.path;
+    // console.log(request.files);
+    let coverImageLocalPath;
+    if (
+        request.files &&
+        Array.isArray(request.files.coverImage) &&
+        request.files.coverImage.lenght > 0
+    ) {
+        coverImageLocalPath = request.files.coverImage[0].path;
+    }
+    const coverImage = await uploadFile(coverImageLocalPath);
+
     const user = await User.create({
         fullname,
         avatar: avatar.url,
-        coverImage: coverImage?.url || null,
+        coverImage: coverImage?.url || "",
         email,
         password,
         username: username.toLowerCase(),
