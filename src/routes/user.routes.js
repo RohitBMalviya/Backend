@@ -32,13 +32,17 @@ router.route("/register").post(
 );
 router.route("/login").post(loginUser);
 router.route("/logout").post(verifyJWT, logoutUser);
-router.route("/refresh-token").post(refreshAccessToken);
+router.route("/refreshtoken").post(refreshAccessToken);
 router.route("/changepassword").post(verifyJWT, changeUserPassword);
-router.route("/currentuser").post(verifyJWT, getCurrentUser);
-router.route("/updateuserdetail").post(verifyJWT, updateUserDetail);
-router.route("/updateuseravatar").post(updateUserAvatar);
-router.route("/updateusercoverimage").post(updateUserCoverImage);
-router.route("/userchanneldetail").post(getUserChannelDetail);
-router.route("/userWatchhistory").post(getUserWatchHistory);
+router.route("/getcurrentuser").get(verifyJWT, getCurrentUser);
+router.route("/updateuserdetail").patch(verifyJWT, updateUserDetail);
+router
+    .route("/updateuseravatar")
+    .patch(verifyJWT, upload.single("avatar"), updateUserAvatar);
+router
+    .route("/updateusercoverimage")
+    .patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage);
+router.route("/c/:username").get(verifyJWT, getUserChannelDetail);
+router.route("/userwatchhistory").get(verifyJWT, getUserWatchHistory);
 
 export default router;

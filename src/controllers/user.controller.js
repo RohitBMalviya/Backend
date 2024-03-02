@@ -181,7 +181,7 @@ export const refreshAccessToken = asyncHandler(async (request, response) => {
             incomingToken,
             process.env.REFRESH_TOKEN_SECRET
         );
-        console.log(decodedToken);
+        // console.log(decodedToken);
         const user = await User.findById(decodedToken?._id);
         if (!user) {
             throw new ApiError(401, "Invalid refresh token");
@@ -252,7 +252,7 @@ export const updateUserDetail = asyncHandler(async (request, response) => {
         { $set: { fullname: fullname, email: email } },
         {}
     ).select("-password");
-    console.log(user);
+    // console.log(user);
 
     return response
         .status(200)
@@ -261,7 +261,7 @@ export const updateUserDetail = asyncHandler(async (request, response) => {
 
 export const updateUserAvatar = asyncHandler(async (request, response) => {
     const avatarLocalPath = request.file?.path;
-    // console.log("aaaa", avatarLocalPath);
+    // console.log("aaaa", request.file);
 
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar is missing");
@@ -418,7 +418,7 @@ export const getUserWatchHistory = asyncHandler(async (request, response) => {
             },
         },
     ]);
-
+    console.log(user);
     response
         .status(200)
         .json(200, user[0].watchHistory, "WatchHistory Fetch Successfully");
