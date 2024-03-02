@@ -46,7 +46,6 @@ export const registerUser = asyncHandler(async (request, response) => {
     }
 
     const avatarLocalPath = request.files?.avatar[0]?.path;
-
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is  required");
     }
@@ -66,13 +65,13 @@ export const registerUser = asyncHandler(async (request, response) => {
         Array.isArray(request.files.coverImage) &&
         request.files.coverImage.length > 0
     ) {
-        coverImageLocalPath = request.files.coverImage[0].path;
+        coverImageLocalPath = request.files?.coverImage[0]?.path;
     }
     const coverImage = await uploadFile(coverImageLocalPath);
 
     const user = await User.create({
         fullname,
-        avatar: avatar.url,
+        avatar: avatar.url || "",
         coverImage: coverImage?.url || "",
         email,
         password,
@@ -101,7 +100,7 @@ export const loginUser = asyncHandler(async (request, response) => {
     // });
 
     const { email, username, password } = request.body;
-    console.log(request.body);
+    // console.log(request.body);
 
     if (!(email || username)) {
         throw new ApiError(400, "Username or Email is Required");
@@ -152,7 +151,7 @@ export const loginUser = asyncHandler(async (request, response) => {
 
 export const logoutUser = asyncHandler(async (request, response) => {
     await User.findByIdAndUpdate(
-        request.user._id,
+        request.user?._id,
         {
             $set: { refreshToken: undefined },
         },
@@ -181,6 +180,7 @@ export const refreshAccessToken = asyncHandler(async (request, response) => {
             incomingToken,
             process.env.REFRESH_TOKEN_SECRET
         );
+        console.log(decodedToken);
         const user = await User.findById(decodedToken?._id);
         if (!user) {
             throw new ApiError(401, "Invalid refresh token");
@@ -211,4 +211,101 @@ export const refreshAccessToken = asyncHandler(async (request, response) => {
     } catch (error) {
         throw new ApiError(401, error?.message || "Invalid refresh Token");
     }
+});
+
+export const changeUserPassword = asyncHandler(async (request, response) => {
+    const { oldPassword, newPassword } = request.body;
+
+    const user = await User.findById(request.user?._id);
+
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+    if (!isPasswordCorrect) {
+        throw new ApiError(400, "Invalid Password");
+    }
+
+    user.password = newPassword;
+    await user.save({ validateBeforeSave: false });
+
+    return response
+        .status(200)
+        .json(new ApiRespone(200, {}, "Password Change Successfully"));
+});
+
+export const getCurrentUser = asyncHandler(async (request, response) => {
+    return response
+        .status(200)
+        .json(
+            new ApiRespone(200, request.user, "Current User Fetch Successfully")
+        );
+});
+
+export const updateUserDetail = asyncHandler(async (request, response) => {
+    const { fullname, email } = request.body;
+
+    if (!(fullname || email)) {
+        throw new ApiError(400, "All fields are required");
+    }
+    const user = await User.findByIdAndUpdate(
+        request.user?._id,
+        { $set: { fullname: fullname, email: email } },
+        {}
+    ).select("-password");
+    console.log(user);
+
+    return response
+        .status(200)
+        .json(new ApiRespone(200, { user }, "User detail Update Successfully"));
+});
+
+export const updateUserAvatar = asyncHandler(async (request, response) => {
+    const avatarLocalPath = request.file?.path;
+    // console.log("aaaa", avatarLocalPath);
+
+    if (!avatarLocalPath) {
+        throw new ApiError(400, "Avatar is missing");
+    }
+    const avatar = await uploadFile(avatarLocalPath);
+
+    if (!avatar.url) {
+        throw new ApiError(400, "Avatar is not uploaded");
+    }
+
+    const user = await User.findByIdAndUpdate(
+        request.user._id,
+        {
+            $set: {
+                avatar: avatar.url,
+            },
+        },
+        { new: true }
+    ).select("-password");
+
+    response.status(200).json(200, { user }, "Avatar Update Successfully");
+});
+
+export const updateUserCoverImage = asyncHandler(async (request, response) => {
+    // console.log("body", request.file);
+    const coverImageLocalPath = request.file?.path;
+
+    if (!coverImageLocalPath) {
+        throw new ApiError(400, "coverImage is missing");
+    }
+    const coverImage = await uploadFile(coverImageLocalPath);
+
+    if (!coverImage.url) {
+        throw new ApiError(400, "coverImage is not uploaded");
+    }
+
+    const user = await User.findByIdAndUpdate(
+        request.user._id,
+        {
+            $set: {
+                coverImage: coverImage.url,
+            },
+        },
+        { new: true }
+    ).select("-password");
+
+    response.status(200).json(200, { user }, "coverImage Update Successfully");
 });
