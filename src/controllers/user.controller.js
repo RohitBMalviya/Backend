@@ -154,7 +154,7 @@ export const logoutUser = asyncHandler(async (request, response) => {
     await User.findByIdAndUpdate(
         request.user?._id,
         {
-            $set: { refreshToken: undefined },
+            $unset: { refreshToken: 1 },
         },
         { new: true }
     );
@@ -256,7 +256,7 @@ export const updateUserDetail = asyncHandler(async (request, response) => {
 
     return response
         .status(200)
-        .json(new ApiRespone(200, { user }, "User detail Update Successfully"));
+        .json(new ApiRespone(200, user, "User detail Update Successfully"));
 });
 
 export const updateUserAvatar = asyncHandler(async (request, response) => {
@@ -282,7 +282,9 @@ export const updateUserAvatar = asyncHandler(async (request, response) => {
         { new: true }
     ).select("-password");
 
-    response.status(200).json(200, { user }, "Avatar Update Successfully");
+    response
+        .status(200)
+        .json(new ApiRespone(200, user, "Avatar Update Successfully"));
 });
 
 export const updateUserCoverImage = asyncHandler(async (request, response) => {
@@ -308,7 +310,9 @@ export const updateUserCoverImage = asyncHandler(async (request, response) => {
         { new: true }
     ).select("-password");
 
-    response.status(200).json(200, { user }, "coverImage Update Successfully");
+    response
+        .status(200)
+        .json(new ApiRespone(200, user, "coverImage Update Successfully"));
 });
 
 export const getUserChannelDetail = asyncHandler(async (request, response) => {
@@ -373,7 +377,9 @@ export const getUserChannelDetail = asyncHandler(async (request, response) => {
     if (!channel?.length) {
         throw new ApiError(400, "Channel does not exists");
     }
-    response.status(200).json(200, channel[0], "Channel Fetch Successfully");
+    response
+        .status(200)
+        .json(new ApiRespone(200, channel[0], "Channel Fetch Successfully"));
 });
 
 export const getUserWatchHistory = asyncHandler(async (request, response) => {
@@ -418,8 +424,14 @@ export const getUserWatchHistory = asyncHandler(async (request, response) => {
             },
         },
     ]);
-    console.log(user);
+    // console.log(user);
     response
         .status(200)
-        .json(200, user[0].watchHistory, "WatchHistory Fetch Successfully");
+        .json(
+            new ApiRespone(
+                200,
+                user[0].watchHistory,
+                "WatchHistory Fetch Successfully"
+            )
+        );
 });
